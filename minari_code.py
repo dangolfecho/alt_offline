@@ -22,7 +22,6 @@ torch.manual_seed(42)
 sys.argv = ["python", "--algo", "ppo", "--env", "CartPole-v1"]
 #train() - for creating expert policy
 #Dataset creation
-"""
 env = DataCollector(gym.make("CartPole-v1"))
 path = os.path.abspath('') + '/logs/ppo/CartPole-v1_1/best_model'
 agent = PPO.load(path)
@@ -124,3 +123,4 @@ while not done:
 
 env.close()
 print("Accumulated rew: ", accumulated_rew)
+"""
