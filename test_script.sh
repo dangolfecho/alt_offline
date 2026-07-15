@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python train_TD3.py "--env" "PyFlyt/QuadX-Hover-v4"
+python train_DecisionTransformer.py "--env" "PyFlyt/QuadX-Hover-v4"
