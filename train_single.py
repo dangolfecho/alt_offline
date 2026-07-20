@@ -19,17 +19,13 @@ def main():
 
     #torch.distributed.init_process_group()
 
-    sac = d3rlpy.algos.SACConfig(
-            actor_learning_rate=3e-4,
-            critic_learning_rate=3e-4,
-            temp_learning_rate=3e-4,
-            batch_size=256).create()
+    a2c = d3rlpy.algos.SACConfig().create()
             
     evaluators = {'environment': d3rlpy.metrics.EnvironmentEvaluator(env)}
     logger_adapter = d3rlpy.logging.FileAdapterFactory()
 
-    sac.fit(dataset,
-            n_steps=int(1e5),
+    a2c.fit(dataset,
+            n_steps=int(2e6),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,

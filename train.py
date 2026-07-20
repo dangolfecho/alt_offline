@@ -22,24 +22,19 @@ def main():
     device = 'cpu:0'
 
 
-    dataset, env = d3rlpy.datasets.get_cartpole()
-    '''
     pack_name, ac_name = envs[0].split('/')
     dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-v0')
-    '''
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
 
-    #torch.distributed.init_process_group()
-    '''
     sac = d3rlpy.algos.SACConfig(
             actor_learning_rate=3e-4,
             critic_learning_rate=3e-4,
             temp_learning_rate=3e-4,
-            batch_size=256).create(device=device, enable_ddp=True)
-    '''      
-    cql = d3rlpy.algos.DiscreteCQLConfig().create()
+            batch_size=256).create(device=device)
+    sac = d3rlpy.algos.SACConfig().create()
+    #cql = d3rlpy.algos.DiscreteCQLConfig().create()
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
     evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
     if rank == 0:
@@ -49,18 +44,19 @@ def main():
         evaluators = {}
         logger_adapter = d3rlpy.logging.NoopAdapterFactory()
 
-    cql.fit(dataset,
-    #sac.fit(dataset,
-            n_steps=int(1e5),
+    #cql.fit(dataset,
+    sac.fit(dataset,
+            n_steps=int(2e6),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
             evaluators={'environment':
                 d3rlpy.metrics.EnvironmentEvaluator(env)},
-            experiment_name=f'SAC_cartpole_{0}',
-            #experiment_name=f'SAC_{ac_name}_{0}',
+            experiment_name=f'SAC_{ac_name}_{0}',
             show_progress=rank == 0,
     )
+
+    sac.save_model(f'SAC_{ac_name}_final.pt')
 
     d3rlpy.distributed.destroy_process_group()
 
