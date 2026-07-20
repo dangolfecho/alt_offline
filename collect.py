@@ -10,16 +10,20 @@ import torch.nn.functional as F
 from gymnasium import spaces
 from rl_zoo3.train import train
 from stable_baselines3 import A2C, DDPG, DQN, SAC, TD3, PPO
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import SubprocVecEnv
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from minari import DataCollector
 import PyFlyt.gym_envs
 
+from tqdm import tqdm
+
 
 DEFAULT_ENV = 0
 DEFAULT_ALGO = 0
-NUM_SAMPLES = int(1e3)
+NUM_SAMPLES = int(1e6)
 
 torch.manual_seed(42)
 
@@ -61,7 +65,9 @@ def policy_gen(env, algo_num, obs, model=None):
         return model.predict(obs)
 
 def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO):
-    env = gym.make(envs[env_num])
+    env = make_vec_env(envs[env_num], n_envs=16, vec_env_cls=SubprocVecEnv,
+            env_kwargs={'render_mode': 'rgb_array'},
+            vec_env_kwargs=dict(start_method='fork'),)
     collector_env = DataCollector(env)
 
     obs, _ = collector_env.reset()
@@ -71,7 +77,7 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO):
     else:
         model = get_model(env, envs[env_num], algorithm_map[algo_num])
 
-    for _ in range(NUM_SAMPLES):
+    for _ in tqdm(range(NUM_SAMPLES)):
         if(algo_num == 0):
             action = policy_gen(env, algo_num, obs, model)
         else:
