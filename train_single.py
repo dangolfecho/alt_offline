@@ -11,8 +11,10 @@ envs = ["PyFlyt/QuadX-Hover-v4", "PyFlyt/QuadX-Pole-Balance-v4",
 
 def main():
 
-    pack_name, ac_name = envs[0].split('/')
+    pack_name, ac_name = envs[3].split('/')
     dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-v0')
+
+    print(type(env))
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
@@ -24,8 +26,9 @@ def main():
     evaluators = {'environment': d3rlpy.metrics.EnvironmentEvaluator(env)}
     logger_adapter = d3rlpy.logging.FileAdapterFactory()
 
+'''
     a2c.fit(dataset,
-            n_steps=int(2e6),
+            n_steps=int(1e3),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
@@ -33,7 +36,7 @@ def main():
                 d3rlpy.metrics.EnvironmentEvaluator(env)},
             experiment_name=f'SAC_{ac_name}_{0}',
     )
-
+'''
 if __name__ == '__main__':
     main()
 
