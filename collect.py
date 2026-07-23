@@ -18,7 +18,6 @@ from tqdm.auto import tqdm
 from minari import DataCollector
 from minari.serialization import deserialize_space, serialize_space
 import PyFlyt.gym_envs
-from gymnasium.wrappers import FlattenObservation
 
 from gymnasium.spaces import Box, Sequence
 from typing import Dict, Union
@@ -113,6 +112,7 @@ def deserialize_sequence(space_dict: Dict) -> spaces.Sequence:
 
 def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO):
     env = get_env(envs[env_num])
+    print(env.action_space)
     collector_env = DataCollector(env)
 
     obs, _ = collector_env.reset()

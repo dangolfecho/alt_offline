@@ -50,7 +50,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     device = 'cpu:0'
 
     pack_name, ac_name = envs[env_num].split('/')
-    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-v{dataset_num}')
+    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-v{dataset_num}',
+            action_space=d3rlpy.ActionSpace.CONTINUOUS)
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
@@ -181,3 +182,7 @@ class FlattenWaypointEnv(ObservationWrapper,
 
         """
 '''
+"""
+following changes to d3rlpy/d3rlpy/datasets.py
+add option to get_minari( to pass actionspace continuous.
+"""
