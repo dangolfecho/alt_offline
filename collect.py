@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 
 DEFAULT_ENV = 0
 DEFAULT_ALGO = 0
-NUM_SAMPLES = int(1e3)
+NUM_SAMPLES = int(1e6)
 
 torch.manual_seed(42)
 
