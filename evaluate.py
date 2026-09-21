@@ -59,11 +59,11 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     d3rlpy.envs.seed_env(env, 0)
     
     #sac = d3rlpy.algos.SACConfig().create()
+    ag = d3rlpy.load_learnable('model_2000000.d3', device=device)
     #ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.IQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.TD3PlusBCConfig().create(device=device)
     #ag = d3rlpy.algos.DecisionTransformerConfig().create(device=device)
-    ag = d3rlpy.load_learnable('model_2000000.d3', device=device)
     #iql = d3rlpy.algos.CQLConfig().create()
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
     evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
@@ -81,16 +81,13 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
 
     ag.fit(dataset,
     #sac.fit(dataset,
-            n_steps=int(1e3),
-            #n_steps=int(2e6),
+            #n_steps=int(1e3),
+            n_steps=int(1000),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
-            #evaluators= evaluators,
-            #for Decision Transformer keeping above line commented and uncomment
-            #below lines
-            eval_env=env,
-            eval_target_return=1500,
+            evaluators= evaluators,
+            #for Decision Transformer keeping above line commented
             experiment_name=f'SAC_{ac_name}_{dataset_num}',
             show_progress=rank == 0,
     )

@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from gymnasium import spaces
-from rl_zoo3.train import train
 from stable_baselines3 import A2C, DDPG, DQN, SAC, TD3, PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import SubprocVecEnv
@@ -74,16 +73,17 @@ def get_model(env, env_str, algorithm_str):
     #model_path = f'../alt_drones/{env_name}/{algorithm_str}.zip'
     #model_path = f'../alt_drones/backup/{algorithm_str}{env_name}.zip'
     model_path = f'../alt_drones/results/{env_name}/{algorithm_str}.zip'
+    device = 'cpu'
     if(algorithm_str == 'a2c'):
-        return A2C.load(model_path, env)
+        return A2C.load(model_path, env, device=device)
     elif(algorithm_str == 'ddpg'):
-        return DDPG.load(model_path, env)
+        return DDPG.load(model_path, env, device=device)
     elif(algorithm_str == 'sac'):
-        return SAC.load(model_path, env)
+        return SAC.load(model_path, env, device=device)
     elif(algorithm_str == 'td3'):
-        return TD3.load(model_path, env)
+        return TD3.load(model_path, env, device=device)
     elif(algorithm_str == 'ppo'):
-        return PPO.load(model_path, env)
+        return PPO.load(model_path, env, device=device)
 
 def policy_gen(env, algo_num, obs, model=None):
     if(algo_num == 0):
