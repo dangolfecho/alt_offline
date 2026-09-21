@@ -25,6 +25,9 @@ DEFAULT_N_STEPS_PER_EPOCH = int(1e5)
 DEFAULT_SAVE_INTERVAL = 10
 
 def main(args):
+    rank = d3rlpy.distributed.init_process_group("gloo")
+    print(f"Start running on rank={rank}")
+    
     pack_name, ac_name = (args.env).split('/')
     dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-v0')
 
@@ -57,6 +60,8 @@ def main(args):
                 d3rlpy.metrics.EnvironmentEvaluator(env)},
             experiment_name=f'CQL_{ac_name}_{0}',
     )
+
+    d3rlpy.distributed.destroy_process_group()
 
 
 if __name__ == '__main__':

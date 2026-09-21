@@ -1,5 +1,6 @@
 import d3rlpy
 import argparse
+import onnxscript
 import gymnasium as gym
 import PyFlyt.gym_envs
 import pandas as pd
@@ -19,9 +20,27 @@ def main(algoname=DEFAULT_ALGO, mname=DEFAULT_MODEL):
     device='cuda:0'
     model = d3rlpy.load_learnable(save_path, device=device)
 
-    model.fit(
-        
-    )
+    save_path = f'models/{algoname}_{mname}/model_2000000.d3' 
+    env = gym.make(envs[0])
+    model = d3rlpy.load_learnable(save_path)
+
+    actor = model.as_stateful_wrapper(target_return=1400)
+
+    ep_count = 0
+    observation = np.random.random((1, 3))
+    observation, reward = env.reset(), 0.0
+    rewards = [[]]
+    while ep_count < 10:
+        action = actor.predict(observation, reward)
+        observation, reward, done, _ = env.step(action)
+        rewards[ep_count].append(reward)
+        if done:
+            observation = env.reset()
+            ep_count += 1
+            rewards.append([])
+
+    df = pd.DataFrame(reward)
+    df.to_csv("rewards.csv")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

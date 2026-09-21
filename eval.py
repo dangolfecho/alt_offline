@@ -6,8 +6,8 @@ import PyFlyt.gym_envs
 import pandas as pd
 import numpy as np
 
-DEFAULT_NAME = "0"
-DEFAULT_NUM = int(1e5)
+DEFAULT_NAME = "PPO_CQL"
+DEFAULT_NUM = int(2e6)
 
 envs = ["PyFlyt/QuadX-Hover-v4", "PyFlyt/QuadX-Pole-Balance-v4",
         "PyFlyt/QuadX-Ball-In-Cup-v4", "PyFlyt/QuadX-Pole-Waypoints-v4",
@@ -15,9 +15,10 @@ envs = ["PyFlyt/QuadX-Hover-v4", "PyFlyt/QuadX-Pole-Balance-v4",
 
 def main(mname=DEFAULT_NAME):
     iter_num = DEFAULT_NUM
-    save_path = f'backup/plot_cache/{mname}/model_' 
+    #save_path = f'backup/plot_cache/{mname}/model_' 
+    save_path = f'models/{mname}/model_{iter_num}.d3'
     env = gym.make(envs[0])
-    model = d3rlpy.load_learnable(f'{save_path}{iter_num}.d3')
+    model = d3rlpy.load_learnable(save_path)
 
     ep_count = 0
     observation = np.random.random((1, 3))
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
             prog='eval.py',
             description='evaluates trained models')
-    parser.add_argument('mname', type=str, default=DEFAULT_NAME, help='name of\
+    parser.add_argument('--mname', type=str, default=DEFAULT_NAME, help='name of\
         file which contains models')
     ARGS = parser.parse_args()
     main(**vars(ARGS))

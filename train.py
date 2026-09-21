@@ -57,7 +57,6 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
-    
     #sac = d3rlpy.algos.SACConfig().create()
     #ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.IQLConfig(batch_size=2048).create(device=device)
@@ -65,6 +64,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     #ag = d3rlpy.algos.DecisionTransformerConfig().create(device=device)
     ag = d3rlpy.load_learnable('model_2000000.d3', device=device)
     #iql = d3rlpy.algos.CQLConfig().create()
+    #sac = d3rlpy.algos.SACConfig().create()
+    cql = d3rlpy.algos.CQLConfig().create()
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
     evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
     if rank == 0:
@@ -79,10 +80,10 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
         evaluators = {}
         logger_adapter = d3rlpy.logging.NoopAdapterFactory()
 
-    ag.fit(dataset,
+    cql.fit(dataset,
     #sac.fit(dataset,
-            n_steps=int(1e3),
-            #n_steps=int(2e6),
+            #n_steps=int(1e3),
+            n_steps=int(2e6),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
@@ -95,7 +96,7 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
             show_progress=rank == 0,
     )
 
-    ag.save_model(f'SAC_{ac_name}_{dataset_num}_final.pt')
+    cql.save_model(f'SAC_{ac_name}_{dataset_num}_final.pt')
 
     d3rlpy.distributed.destroy_process_group()
 
@@ -191,4 +192,7 @@ class FlattenWaypointEnv(ObservationWrapper,
 """
 following changes to d3rlpy/d3rlpy/datasets.py
 add option to get_minari( to pass actionspace continuous.
+
+
+from .constants import ActionSpace
 """
