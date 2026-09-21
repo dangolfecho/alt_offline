@@ -42,7 +42,9 @@ def deserialize_sequence(space_dict: Dict) -> spaces.Sequence:
 
 DEFAULT_ENV = 0
 DEFAULT_DATASET = 0
-def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
+DEFAULT_ALGO = 'SAC'
+
+def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET, algo=DEFAULT_ALGO):
 
     rank = d3rlpy.distributed.init_process_group("gloo")
     print(f"Start running on rank={rank}")
@@ -56,12 +58,7 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
 
-    sac = d3rlpy.algos.SACConfig(
-            actor_learning_rate=3e-4,
-            critic_learning_rate=3e-4,
-            temp_learning_rate=3e-4,
-            batch_size=256).create(device=device)
-    sac = d3rlpy.algos.SACConfig().create()
+    sac = d3rlpy.algos.CQLConfig().create(device=device)
     #cql = d3rlpy.algos.DiscreteCQLConfig().create()
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
     evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
@@ -79,8 +76,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
 
     #cql.fit(dataset,
     sac.fit(dataset,
-            n_steps=int(1e3),
-            #n_steps=int(2e6),
+            #n_steps=int(1e3),
+            n_steps=int(2e6),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
@@ -98,10 +95,11 @@ if __name__ == '__main__':
             prog='train.py',
             description='does offline training',
             )
-    parser.add_argument('env_num', type=int, default=DEFAULT_ENV, help='which\
+    parser.add_argument('--env_num', type=int, default=DEFAULT_ENV, help='which\
             environment to train onfrom')
-    parser.add_argument('dataset_num', type=int, default=DEFAULT_DATASET, help='which\
+    parser.add_argument('--dataset_num', type=int, default=DEFAULT_DATASET, help='which\
             algorithm to use for collecting data')
+    parser.add_argument('--algo', type=str, default=DEFAULT_ALGO, help='which\ algorithm to run for training the model')
     ARGS = parser.parse_args()
     main(**vars(ARGS))
 
