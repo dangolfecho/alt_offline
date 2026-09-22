@@ -52,13 +52,13 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     device = f'cuda:{rank}'
 
     pack_name, ac_name = envs[env_num].split('/')
-    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-0-20-v3',
-    #dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-combined-v0',
+    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-combined-v0',
             action_space=d3rlpy.ActionSpace.CONTINUOUS)
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
     #sac = d3rlpy.algos.SACConfig().create()
+    falgo = "CQL"
     ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.IQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.TD3PlusBCConfig().create(device=device)
@@ -82,8 +82,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
         logger_adapter = d3rlpy.logging.NoopAdapterFactory()
 
     ag.fit(dataset,
-            n_steps=int(1e3),
-            #n_steps=int(2e6),
+            #n_steps=int(1e3),
+            n_steps=int(2e6),
             n_steps_per_epoch=1000,
             save_interval=10,
             logger_adapter=logger_adapter,
@@ -92,11 +92,11 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
             #below lines
             #eval_env=env,
             #eval_target_return=1500,
-            experiment_name=f'SAC_{ac_name}_{dataset_num}',
+            experiment_name=f'PPO_{ac_name}_{dataset_num}',
             show_progress=rank == 0,
     )
 
-    ag.save_model(f'PPO_{ac_name}_{dataset_num}_combined.pt')
+    ag.save_model(f'models/PPO_{ac_name}_{dataset_num}_combined_{falgo}.pt')
 
     d3rlpy.distributed.destroy_process_group()
 
