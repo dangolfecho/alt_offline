@@ -27,13 +27,9 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO):
             continue
         lower_bound = i
         upper_bound = i+20
-        dataset_name_format = f'{envs[env_num]}/dataset-v1{multiplier}'
-        #dataset_name_format = f'{envs[env_num]}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
+        dataset_name_format = f'{envs[env_num]}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
         datasets.append(minari.load_dataset(dataset_name_format))
         multiplier -= 1
-        print(datasets[0].env_spec)
-        break
-    return
     combine_dataset = minari.combine_datasets(datasets_to_combine=datasets, 
             new_dataset_id=f'{envs[env_num]}/dataset-{algo_num}-combined-v0')
 #python ppo_collect.py 0 14 3 0 20
