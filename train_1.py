@@ -59,7 +59,7 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     d3rlpy.envs.seed_env(env, 0)
     
     #sac = d3rlpy.algos.SACConfig().create()
-    ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device) done
+    ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device)
     #ag = d3rlpy.algos.IQLConfig(batch_size=2048).create(device=device)
     #iql = d3rlpy.algos.CQLConfig().create()
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
