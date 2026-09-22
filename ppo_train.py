@@ -52,8 +52,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     device = f'cuda:{rank}'
 
     pack_name, ac_name = envs[env_num].split('/')
-    #dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-0-20-v3',
-    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-combined-v0',
+    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-0-20-v3',
+    #dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-combined-v0',
             action_space=d3rlpy.ActionSpace.CONTINUOUS)
 
     d3rlpy.seed(0)

@@ -29,14 +29,16 @@ from PyFlyt.gym_envs import FlattenWaypointEnv
 
 
 from gymnasium.envs.registration import EnvSpec
+import json
+import pickle
 
 warnings.filterwarnings('ignore')
 
 
 DEFAULT_ENV = 0
 DEFAULT_ALGO = 0
-NUM_SAMPLES = int(1e6)
-#NUM_SAMPLES = int(1e3)
+#NUM_SAMPLES = int(1e6)
+NUM_SAMPLES = int(1e3)
 DEFAULT_SAMPLE_MULT = 1
 DEFAULT_LOWER_BOUND = 0
 DEFAULT_UPPER_BOUND = 0
@@ -164,9 +166,18 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
         if terminated or truncated:
             obs, _ = collector_env.reset()
     _, actual_env_name = (envs[env_num]).split('/')
-    dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
+    dataset_id = f'{actual_env_name}/dataset-v404'
+
+    env_spec = env.spec
+    assert isinstance(env_spec, EnvSpec)
+    env_spec.pprint()
+
+    pickled_env_spec = pickle.loads(pickle.dumps(env_spec))
+
+    #dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
     dataset = collector_env.create_dataset(dataset_id=dataset_id,
-            eval_env=envs[env_num],
+            env_spec=pickled_env_spec,
+            eval_env=env,
             algorithm_name=algorithm_map[algo_num],
             author='Gideon',
             author_email='filler_email',
