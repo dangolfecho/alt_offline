@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from gymnasium import spaces
-from rl_zoo3.train import train
 from stable_baselines3 import A2C, DDPG, DQN, SAC, TD3, PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import SubprocVecEnv
@@ -82,9 +81,9 @@ def get_env(env_str, lower_bound, upper_bound):
         flight_dome_size = 150
         reward_flag = 0
         Z = 10.0
-        start_pos = np.array([[0.0, 0.0, Z]])
-        start_orn = np.array([[0.0, 0.0, 0.0]])
-        goal_state = np.array([0.0, 0.0, Z])
+        start_pos_dict = {"x": 0.0, "y": 0.0, "z": Z} 
+        start_orn_dict = {"r": 0.0, "p": 0.0, "y": 0.0} 
+        goal_state_dict = {"x": 0.0, "y": 0.0, "z": Z} 
         sparse_reward = 0
         return gym.make(env_str,
                 adaptive_train_flag=adaptive_train_flag,
@@ -94,11 +93,11 @@ def get_env(env_str, lower_bound, upper_bound):
                 lower_bound=lower_bound,
                 upper_bound=upper_bound,
                 flight_dome_size=flight_dome_size,
-                start_pos=start_pos,
-                start_orn=start_orn,
                 sparse_reward=sparse_reward,
-                goal_state=goal_state,
                 max_duration_seconds=10,
+                start_pos_dict=start_pos_dict,
+                start_orn_dict=start_orn_dict,
+                goal_state_dict=goal_state_dict,
                 )
     
 def get_model(env, env_str, algorithm_str):
@@ -167,16 +166,8 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
             obs, _ = collector_env.reset()
     _, actual_env_name = (envs[env_num]).split('/')
     dataset_id = f'{actual_env_name}/dataset-v404'
-
-    env_spec = env.spec
-    assert isinstance(env_spec, EnvSpec)
-    env_spec.pprint()
-
-    pickled_env_spec = pickle.loads(pickle.dumps(env_spec))
-
     #dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
     dataset = collector_env.create_dataset(dataset_id=dataset_id,
-            env_spec=pickled_env_spec,
             eval_env=env,
             algorithm_name=algorithm_map[algo_num],
             author='Gideon',
