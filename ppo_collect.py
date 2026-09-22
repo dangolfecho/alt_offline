@@ -145,7 +145,6 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
         multiplier=DEFAULT_SAMPLE_MULT, lower_bound=DEFAULT_LOWER_BOUND,
         upper_bound=DEFAULT_UPPER_BOUND):
     env = get_env(envs[env_num], lower_bound, upper_bound)
-    print(env.action_space)
     collector_env = DataCollector(env)
 
     obs, _ = collector_env.reset()
@@ -165,8 +164,7 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
         if terminated or truncated:
             obs, _ = collector_env.reset()
     _, actual_env_name = (envs[env_num]).split('/')
-    dataset_id = f'{actual_env_name}/dataset-v404'
-    #dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
+    dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
     dataset = collector_env.create_dataset(dataset_id=dataset_id,
             eval_env=env,
             algorithm_name=algorithm_map[algo_num],
