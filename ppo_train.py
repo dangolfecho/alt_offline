@@ -25,6 +25,33 @@ envs = ["PyFlyt/QuadX-Hover-v4", "PyFlyt/QuadX-Pole-Balance-v4",
         "PyFlyt/QuadX-Ball-In-Cup-v4", "PyFlyt/QuadX-Pole-Waypoints-v4",
         "PyFlyt/QuadX-Waypoints-v4", "PyFlyt/Fixedwing-Waypoints-v3", "PyFlyt/Rocket-Landing-v4"]
 
+algos = ["CQL", "IQL"]
+
+
+def get_dataset_id(ac_name: str,
+        dataset_algo_num: int,
+        dataset_type: int):
+    #0 - combined
+    #1 - 0-20
+    #2 - 20-40
+    #3 - 60-80
+    if(dataset_type == 0):
+        return f'{ac_name}/dataset-{dataset_algo_num}-combined-v0'
+    elif(dataset_type == 1):
+        return f'{ac_name}/dataset-{dataset_algo_num}-0-20-v3'
+    elif(dataset_type == 2):
+        return f'{ac_name}/dataset-{dataset_algo_num}-20-40-v2'
+    elif(dataset_type == 3):
+        return f'{ac_name}/dataset-{dataset_algo_num}-60-80-v1'
+
+def get_model(training_algo: int, batch_size: int,
+        device):
+    if(training_algo == 0):
+        return (d3rlpy.algos.CQLConfig(batch_size=batch_size).create(device=device), "CQL")
+    elif(training_algo == 1):
+        return (d3rlpy.algos.IQLConfig(batch_size=batch_size).create(device=device), "IQL")
+
+        
 @serialize_space.register(spaces.Sequence)
 def serialize_sequence(space: spaces.Sequence, to_string=True) -> Union[Dict, str]:
     box_obj = ((space.__dict__)['feature_space'])
@@ -43,8 +70,12 @@ def deserialize_sequence(space_dict: Dict) -> spaces.Sequence:
     return spaces.Sequence(box_obj, stack=True)
 
 DEFAULT_ENV = 0
-DEFAULT_DATASET = 0
-def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
+DEFAULT_DATASET_ALGO = 0
+DEFAULT_DTYPE = 0
+DEFAULT_TRAINING_ALGO = 0
+
+def main(env_num=DEFAULT_ENV, dataset_algo_num=DEFAULT_DATASET_ALGO, dataset_type=DEFAULT_DTYPE,
+        training_algo=DEFAULT_TRAINING_ALGO):
 
     rank = d3rlpy.distributed.init_process_group("gloo")
     print(f"Start running on rank={rank}")
@@ -52,21 +83,16 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     device = f'cuda:{rank}'
 
     pack_name, ac_name = envs[env_num].split('/')
-    dataset, env = d3rlpy.datasets.get_minari(f'{ac_name}/dataset-{dataset_num}-combined-v0',
+    dataset_id = get_dataset_id(ac_name, dataset_algo_num, dataset_type)
+    dataset, env = d3rlpy.datasets.get_minari(dataset_id,
             action_space=d3rlpy.ActionSpace.CONTINUOUS)
 
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
-    #sac = d3rlpy.algos.SACConfig().create()
-    falgo = "CQL"
-    ag = d3rlpy.algos.CQLConfig(batch_size=2048).create(device=device)
-    #ag = d3rlpy.algos.IQLConfig(batch_size=2048).create(device=device)
-    #ag = d3rlpy.algos.TD3PlusBCConfig().create(device=device)
-    #ag = d3rlpy.algos.DecisionTransformerConfig().create(device=device)
-    #ag = d3rlpy.load_learnable('model_2000000.d3', device=device)
-    #iql = d3rlpy.algos.CQLConfig().create()
-    #sac = d3rlpy.algos.SACConfig().create()
-    #cql = d3rlpy.algos.CQLConfig().create()
+
+    batch_size=512
+    ag, algo_str = get_model(training_algo, batch_size, device)
+
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
     evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
     if rank == 0:
@@ -84,7 +110,7 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
     ag.fit(dataset,
             #n_steps=int(1e3),
             n_steps=int(2e6),
-            n_steps_per_epoch=1000,
+            n_steps_per_epoch=500,
             save_interval=10,
             logger_adapter=logger_adapter,
             evaluators= evaluators,
@@ -92,11 +118,11 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
             #below lines
             #eval_env=env,
             #eval_target_return=1500,
-            experiment_name=f'PPO_{ac_name}_{dataset_num}',
+            experiment_name=f'PPO_{ac_name}_{dataset_id}_{algo_str}',
             show_progress=rank == 0,
     )
 
-    ag.save_model(f'models/PPO_{ac_name}_{dataset_num}_combined_{falgo}.pt')
+    ag.save_model(f'models/PPO_{dataset_id}_{algo_str}.pt')
 
     d3rlpy.distributed.destroy_process_group()
 
@@ -107,8 +133,13 @@ if __name__ == '__main__':
             )
     parser.add_argument('env_num', type=int, default=DEFAULT_ENV, help='which\
             environment to train onfrom')
-    parser.add_argument('dataset_num', type=int, default=DEFAULT_DATASET, help='which\
-            algorithm to use for collecting data')
+    parser.add_argument('dataset_algo_num', type=int, default=DEFAULT_DATASET_ALGO, help='which\
+            algorithm was used for collecting data')
+    parser.add_argument('dataset_type', type=int, default=DEFAULT_DTYPE,
+            help='which dataset to use for training')
+    parser.add_argument('training_algo', type=int,
+            default=DEFAULT_TRAINING_ALGO, help='which algo to use for training\
+            offline model')
     ARGS = parser.parse_args()
     main(**vars(ARGS))
 
