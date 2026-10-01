@@ -51,7 +51,8 @@ def main(env_num=DEFAULT_ENV, dataset_num=DEFAULT_DATASET):
             #logger_adapter=logger_adapter,
             #evaluators={'environment':
                 #d3rlpy.metrics.EnvironmentEvaluator(env)},
-            experiment_name=f'Finetune_SAC_{ac_name}_{dataset_num}_SAC',
+            #experiment_name=f'Finetune_SAC_{ac_name}_{dataset_num}_SAC',
+            experiment_name=f'Online_Finetune_{ac_name}_{dataset_num}_IQL',
             #show_progress=rank == 0,
     )
 
