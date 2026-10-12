@@ -37,6 +37,7 @@ warnings.filterwarnings('ignore')
 DEFAULT_ENV = 0
 DEFAULT_ALGO = 0
 NUM_SAMPLES = int(1e6)
+DEFAULT_MAGNITUDE = 1
 DEFAULT_SAMPLE_MULT = 1
 DEFAULT_LOWER_BOUND = 0
 DEFAULT_UPPER_BOUND = 0
@@ -141,7 +142,8 @@ def deserialize_sequence(space_dict: Dict) -> spaces.Sequence:
     return spaces.Sequence(box_obj, stack=True)
 
 def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
-        multiplier=DEFAULT_SAMPLE_MULT, lower_bound=DEFAULT_LOWER_BOUND,
+        multiplier=DEFAULT_SAMPLE_MULT, magnitude=DEFAULT_MAGNITUDE,
+        lower_bound=DEFAULT_LOWER_BOUND,
         upper_bound=DEFAULT_UPPER_BOUND):
     env = get_env(envs[env_num], lower_bound, upper_bound)
     collector_env = DataCollector(env)
@@ -153,7 +155,7 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
     else:
         model = get_model(env, envs[env_num], algorithm_map[algo_num])
 
-    for _ in tqdm(range(multiplier*NUM_SAMPLES)):
+    for _ in tqdm(range(multiplier*magnitude*NUM_SAMPLES)):
         if(algo_num == 0):
             action = policy_gen(env, algo_num, obs, model)
         else:
@@ -163,7 +165,7 @@ def main(env_num=DEFAULT_ENV, algo_num=DEFAULT_ALGO,
         if terminated or truncated:
             obs, _ = collector_env.reset()
     _, actual_env_name = (envs[env_num]).split('/')
-    dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-v{multiplier}'
+    dataset_id = f'{actual_env_name}/dataset-{algo_num}-{lower_bound}-{upper_bound}-_{magnitude}M-v{multiplier}'
     dataset = collector_env.create_dataset(dataset_id=dataset_id,
             eval_env=env,
             algorithm_name=algorithm_map[algo_num],
@@ -184,6 +186,8 @@ if __name__ == '__main__':
             algorithm to use for collecting data')
     parser.add_argument('multiplier', type=int, default=DEFAULT_SAMPLE_MULT,
             help='multiplier for number of samples')
+    parser.add_argument('magnitude', type=int, default=DEFAULT_MAGNITUDE,
+            help='how many millions of samples')
     parser.add_argument('lower_bound', type=int, default=DEFAULT_LOWER_BOUND,
             help='lower bound')
     parser.add_argument('upper_bound', type=int, default=DEFAULT_UPPER_BOUND,
