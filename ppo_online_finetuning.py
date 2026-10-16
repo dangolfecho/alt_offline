@@ -44,13 +44,14 @@ def get_model(
     env,
     save_path,
     device):
+    '''
     if(training_algo == 0):
         ag = d3rlpy.algos.CQLConfig(batch_size=batch_size).create(device=device)
     elif(training_algo == 1):
         ag = d3rlpy.algos.CQLConfig(batch_size=batch_size).create(device=device)
-    ag.build_with_env(env)
+    '''
+    ag = d3rlpy.load_learnable(save_path)
     print(save_path)
-    ag.load_model(save_path)
     return (ag, algos[training_algo])
 
 DEFAULT_ENV = 0
@@ -80,7 +81,7 @@ def main(env_num=DEFAULT_ENV,
 
     batch_size = 512
 
-    save_path = f'models/{dataset_collect_map[dataset_algo]}_{dataset_id}/{algos[training_algo]}/model_2000000.d3'
+    save_path = f'models/{dataset_collect_map[dataset_algo_num]}_{dataset_id}/{algos[training_algo]}/model_2000000.d3'
 
     ag, algo_str = get_model(training_algo, batch_size, env, save_path, device)
 
