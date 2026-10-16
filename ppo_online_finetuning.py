@@ -68,8 +68,8 @@ def main(env_num=DEFAULT_ENV,
     rank = d3rlpy.distributed.init_process_group("gloo")
     print(f"Start running on rank={rank}")
 
-    #device = 'cpu:0'
-    device = f'cuda:{rank}'
+    device = 'cpu:0'
+    #device = f'cuda:{rank}'
 
     pack_name, ac_name = envs[env_num].split('/')
     dataset_id = get_dataset_id(ac_name, dataset_algo_num, dataset_type)
