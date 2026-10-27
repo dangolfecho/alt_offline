@@ -10,11 +10,12 @@ runs = ['DDPG_CQL', 'DDPG_IQL', 'SAC_CQL', 'SAC_IQL', 'PPO_CQL', 'PPO_IQL', 'PPO
 
 def main():
     last_vals = []
-    for i in runs:
-        files = os.listdir(f'd3rlpy_logs/server_runs/{i}/')
-        fname = files[0]
+    for i in range(1, 4):
+        files = os.listdir(f'rewards/')
         save_row = []
-        with open(f'd3rlpy_logs/server_runs/{i}/{fname}/environment.csv',
+        for j in range(0, 80, 20):
+            fname = f'IQL_dataset-14-combined-v0_test_on_{j*3.14/180}_{(j+20)*3.14/180}_{i}M.csv'
+        with open(f'rewards/{fname}/environment.csv',
                 newline='') as fp:
             reader = csv.reader(fp)
             for row in reader:
@@ -40,7 +41,7 @@ def main():
         ax.bar_label(container, padding=3)
 
     ax.set_ylabel('Average reward')
-    ax.set_title('Comparsion of reward across models and datasets')
+    ax.set_title('Comparsion of reward across regions')
     ax.legend(loc='lower right', ncols=3)
     ax.set_ylim(-200, 0)
 

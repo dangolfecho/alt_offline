@@ -1,0 +1,17 @@
+#!/bin/sh
+
+python online_finetuned_viz_altern.py "0" "1" "0" "1" "0" "20" "1"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "20" "40" "1"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "40" "60" "1"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "60" "80" "1"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "0" "80" "1"
+python online_finetuned_viz_altern.py "0" "1" "0" "1" "0" "20" "2"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "20" "40" "2"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "40" "60" "2"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "60" "80" "2"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "0" "80" "2"
+python online_finetuned_viz_altern.py "0" "1" "0" "1" "0" "20" "3"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "20" "40" "3"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "40" "60" "3"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "60" "80" "3"
+python online_finetuned_viz_altern.py  "0" "1" "0" "1" "0" "80" "3"

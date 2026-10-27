@@ -87,11 +87,13 @@ DEFAULT_ENV = 0
 DEFAULT_DATASET_ALGO = 0
 DEFAULT_DTYPE = 0
 DEFAULT_TRAINING_ALGO = 0
+DEFAULT_MULTIPLIER = 2
 
 def main(env_num=DEFAULT_ENV,
     dataset_algo_num=DEFAULT_DATASET_ALGO,
     dataset_type=DEFAULT_DTYPE,
-    training_algo=DEFAULT_TRAINING_ALGO
+    training_algo=DEFAULT_TRAINING_ALGO,
+    multiplier=DEFAULT_MULTIPLIER,
 ):
 
     device = 'cpu:0'
@@ -112,33 +114,23 @@ def main(env_num=DEFAULT_ENV,
     ag, algo_str = get_model(training_algo, batch_size, env, save_path, device)
 
 
-    logger_adapter: d3rlpy.logging.LoggerAdapterFactory
-    evaluators: dict[str, d3rlpy.metrics.EvaluatorProtocol]
-    '''
-    if rank == 0:
-        evaluators = {'environment': d3rlpy.metrics.EnvironmentEvaluator(env)}
-        logger_adapter = d3rlpy.logging.FileAdapterFactory()
-    else:
-        evaluators = {}
-        logger_adapter = d3rlpy.logging.NoopAdapterFactory()
-    '''
+    evaluators = {'environment': d3rlpy.metrics.EnvironmentEvaluator(env)}
+    logger_adapter = d3rlpy.logging.FileAdapterFactory()
 
     env = get_env(envs[env_num], 0, 80)
 
     #cql.fit(dataset,
-    ag.fit_online(env,
-            n_steps=int(2e6),
+    ag.fit_online(env=env,
+            n_steps=int(multiplier * int(1e6)),
             n_steps_per_epoch=500,
             save_interval=10,
-            #logger_adapter=logger_adapter,
-            #evaluators={'environment':
-                #d3rlpy.metrics.EnvironmentEvaluator(env)},
+            logger_adapter=logger_adapter,
             #experiment_name=f'Finetune_SAC_{ac_name}_{dataset_num}_SAC',
-            experiment_name=f'Online_Finetune_{ac_name}_{dataset_id}_{algo_str}',
+            experiment_name=f'Online_Finetune_{ac_name}_{dataset_id}_{algo_str}_{multiplier}M',
             #show_progress=rank == 0,
     )
 
-    ag.save_model(f'models/online_{algo_str}_{ac_name}_{dataset_id}.pt')
+    ag.save_model(f'models/online/{algo_str}_{dataset_id.split("/")[1]}_{multiplier}M.pt')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -155,6 +147,9 @@ if __name__ == '__main__':
     parser.add_argument('training_algo', type=int,
     default=DEFAULT_TRAINING_ALGO, help='which algo to use for online\
     finetuning')
+    parser.add_argument('multiplier', type=int,
+            default=DEFAULT_MULTIPLIER,
+            help='multiplier of 1 million')
     ARGS = parser.parse_args()
     main(**vars(ARGS))
 
