@@ -102,7 +102,7 @@ def get_env(env_str, lower_bound, upper_bound):
     
 def get_model(env, env_str, algorithm_str):
     pack_name, env_name = env_str.split('/')
-    model_path = f'../alt_drones/results/dense/{env_name}/{algorithm_str}.zip'
+    model_path = f'online_models/{algorithm_str}.zip'
     #model_path = f'../alt_drones/backup/{algorithm_str}{env_name}.zip'
     #model_path = f'../alt_drones/ppo_only/backup/dense/06_basic_z_10/{env_name}/{algorithm_str}.zip'
     if(algorithm_str == 'a2c'):

@@ -73,9 +73,10 @@ DEFAULT_ENV = 0
 DEFAULT_DATASET_ALGO = 0
 DEFAULT_DTYPE = 0
 DEFAULT_TRAINING_ALGO = 0
+DEFAULT_BATCH_SIZE = 512
 
 def main(env_num=DEFAULT_ENV, dataset_algo_num=DEFAULT_DATASET_ALGO, dataset_type=DEFAULT_DTYPE,
-        training_algo=DEFAULT_TRAINING_ALGO):
+        training_algo=DEFAULT_TRAINING_ALGO, batch_size=DEFAULT_BATCH_SIZE):
 
     rank = d3rlpy.distributed.init_process_group("gloo")
     print(f"Start running on rank={rank}")
@@ -90,7 +91,6 @@ def main(env_num=DEFAULT_ENV, dataset_algo_num=DEFAULT_DATASET_ALGO, dataset_typ
     d3rlpy.seed(0)
     d3rlpy.envs.seed_env(env, 0)
 
-    batch_size=512
     ag, algo_str = get_model(training_algo, batch_size, device)
 
     logger_adapter: d3rlpy.logging.LoggerAdapterFactory
@@ -118,11 +118,11 @@ def main(env_num=DEFAULT_ENV, dataset_algo_num=DEFAULT_DATASET_ALGO, dataset_typ
             #below lines
             #eval_env=env,
             #eval_target_return=1500,
-            experiment_name=f'PPO_{ac_name}_{dataset_id}_{algo_str}',
+            experiment_name=f'PPO_{ac_name}_{dataset_id}_{algo_str}_{batch_size}',
             show_progress=rank == 0,
     )
 
-    ag.save_model(f'models/PPO_{dataset_id}_{algo_str}.pt')
+    ag.save_model(f'models/PPO_{dataset_id}_{algo_str}_{batch_size}.pt')
 
     d3rlpy.distributed.destroy_process_group()
 
@@ -140,6 +140,8 @@ if __name__ == '__main__':
     parser.add_argument('training_algo', type=int,
             default=DEFAULT_TRAINING_ALGO, help='which algo to use for training\
             offline model')
+    parser.add_argument("batch_size", type=int,
+                        default=DEFAULT_BATCH_SIZE, help='batch size')
     ARGS = parser.parse_args()
     main(**vars(ARGS))
 
