@@ -43,6 +43,8 @@ def get_dataset_id(ac_name: str,
         return f'{ac_name}/dataset-{dataset_algo_num}-20-40-v2'
     elif(dataset_type == 3):
         return f'{ac_name}/dataset-{dataset_algo_num}-60-80-v1'
+    elif(dataset_type == 4):
+        return f"{ac_name}/dataset-{dataset_algo_num}-fixed-1M-v3"
 
 def get_model(training_algo: int, batch_size: int,
         device):
